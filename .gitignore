@@ -1,0 +1,8 @@
+
+.mappsrc
+node_modules
+/node_modules
+./quickstart-integrations/node_modules
+./quickstart-react/node_modules
+quickstart-integrations/node_modules
+quickstart-react/node_modules
