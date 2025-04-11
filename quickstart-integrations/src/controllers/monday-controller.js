@@ -28,6 +28,22 @@ async function executeAction(req, res) {
   }
 }
 
+async function runItemMultiplication(req, res) {
+  const { shortLivedToken } = req.session;
+  const { payload } = req.body;
+
+  try {
+    const { inputFields } = payload;
+    const { boardId, itemId, sourceColumnId, targetColumnId } = inputFields;
+
+    const text = await mondayService.getColumnValue(shortLivedToken, itemId, sourceColumnId);
+
+    return res.status(200).send({});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({ message: 'internal server error' });
+  }
+}
 async function getRemoteListOptions(req, res) {
   try {
     return res.status(200).send(TRANSFORMATION_TYPES);
@@ -40,4 +56,5 @@ async function getRemoteListOptions(req, res) {
 module.exports = {
   executeAction,
   getRemoteListOptions,
+  runItemMultiplication,
 };
