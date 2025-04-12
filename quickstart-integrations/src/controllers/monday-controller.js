@@ -40,7 +40,7 @@ async function saveMultiplicationFactor(req, res) {
       let product = Number(text) * factorRes.toJSON().factor;
       await mondayService.changeColumnValue(authorization, boardId, itemId, factorRes.outputColumnId, product);
 
-      await mondayService.saveCalculationHistory(itemId, boardId, product, factor);
+      await mondayService.saveCalculationHistory(itemId, boardId, product,  originalFactor || factor);
     }
   
     return res.status(200).send({ message: 'Factor saved successfully' });

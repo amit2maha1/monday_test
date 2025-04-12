@@ -11,6 +11,7 @@ const multiplicationSchema = new mongoose.Schema({
         {
             factor: { type: Number, required: false },
             result: { type: Number, required: false },
+            error: { type: String, required: false },
             createdAt: { type: Date, default: Date.now },
         }
     ]

@@ -125,7 +125,7 @@ const App = () => {
     const response = await post("monday/save_factor", {
       itemId,
       boardId: context.boardId, 
-      originalFactor,
+      originalFactor: factor || originalFactor,
     })
     console.log(response, 'save factor res')
     fetchCalcHistory(); 

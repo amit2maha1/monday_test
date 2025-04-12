@@ -1,5 +1,49 @@
 const initMondayClient = require('monday-sdk-js');
 const Multiplication = require('../models/multiplication');
+
+
+async function changeColumnValueWithRetry({
+  token,
+  boardId,
+  itemId,
+  columnId,
+  value,
+  maxRetries = 3,
+  retryDelayMs = 1000,
+}) {
+  let attempts = 0;
+  let lastError;
+
+  while (attempts < maxRetries) {
+    try {
+      const mondayClient = initMondayClient({ token });
+      mondayClient.setApiVersion("2024-01");
+
+      const query = `mutation change_column_value($boardId: ID!, $itemId: ID!, $columnId: String!, $value: JSON!) {
+        change_column_value(board_id: $boardId, item_id: $itemId, column_id: $columnId, value: $value) {
+          id
+        }
+      }
+      `;
+      const variables = { boardId, columnId, itemId, value: `${JSON.stringify(value)}` };
+
+      const response = await mondayClient.api(query, { variables });
+      return response; 
+    } catch (error) {
+      attempts++;
+      lastError = error;
+      console.warn(
+        `Attempt ${attempts}/${maxRetries} failed. Retrying in ${retryDelayMs / 1000} seconds...`,
+        error
+      );
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    }
+  }
+
+  console.error("Failed to change column value after all retries:", lastError);
+  throw lastError; 
+}
+
 const getColumnValue = async (token, itemId, columnId) => {
   try {
     const mondayClient = initMondayClient();
@@ -25,21 +69,20 @@ const getColumnValue = async (token, itemId, columnId) => {
 
 const changeColumnValue = async (token, boardId, itemId, columnId, value) => {
   try {
-    const mondayClient = initMondayClient({ token });
-    mondayClient.setApiVersion("2024-01");
 
-    const query = `mutation change_column_value($boardId: ID!, $itemId: ID!, $columnId: String!, $value: JSON!) {
-        change_column_value(board_id: $boardId, item_id: $itemId, column_id: $columnId, value: $value) {
-          id
-        }
-      }
-      `;
-    const variables = { boardId, columnId, itemId, value: `${value}` };
-
-    const response = await mondayClient.api(query, { variables });
+    const response = await changeColumnValueWithRetry({
+      token,
+      boardId,
+      itemId,
+      columnId,
+      value,
+      maxRetries: 5, 
+      retryDelayMs: 2000, 
+    });
     return response;
   } catch (err) {
     console.error(err);
+    await saveCalculationHistory(itemId, boardId, value, value, err.message);
   }
 };
 
@@ -95,10 +138,10 @@ const saveMultiplicationFactor = async (factorInputs) => {
   }
 };
 
-const saveCalculationHistory = async (itemId, boardId, result, factor) => {
+const saveCalculationHistory = async (itemId, boardId, result, factor, errMsg = "") => {
   const record = await Multiplication.findOne({ itemId, boardId });
   if (record) {
-    record.calc_history.push({ result , factor});
+    record.calc_history.push({ result , factor, error: errMsg });
     await record.save();
   } else {
     console.log("Record not found");
