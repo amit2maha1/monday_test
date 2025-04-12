@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npm run stop && concurrently \"npm run server\" \"npm run expose\"",
     "build": "vite build",
-    "expose": "mapps tunnel:create -p 8301",
+    "expose": "mapps tunnel:create -p 8301 -a 10366872",
     "server": "vite",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@mondaycom/apps-sdk": "^2.1.2",
     "@vibe/core": "^3.19.0",
-    "monday-sdk-js": "^0.5.5"
+    "monday-sdk-js": "^0.5.6"
   },
   "eslintConfig": {
     "extends": "react-app"

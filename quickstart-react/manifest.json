@@ -1,0 +1,21 @@
+{
+    "name": "My React App",
+    "description": "A custom UI built with React",
+    "version": "1.0.0",
+    "minimum_monday_version": "202310",
+    "author": "Your Name",
+    "homepage_url": "https://your-website.com",
+    "category": "productivity",
+    "website_url": "https://your-website.com",
+    "features": [
+      {
+        "feature": "monday_ui_view",
+        "options": {
+          "url": "https://10366872-3f23d3a87045.apps-tunnel.monday.app",
+          "name": "My Custom View",
+          "location": "board_view",
+          "public": true
+        }
+      }
+    ]
+  }
